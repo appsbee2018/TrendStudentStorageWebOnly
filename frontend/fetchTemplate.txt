@@ -1,0 +1,11 @@
+const req = await fetch(`${APIpath}/`, {
+    method: 'POST',
+    headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'authorization': `bearer ${cookies.session}`
+    },
+    body: JSON.stringify(body)
+});
+
+const res = await req.json();
