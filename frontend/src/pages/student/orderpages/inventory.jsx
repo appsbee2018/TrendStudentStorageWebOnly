@@ -113,6 +113,9 @@ const Inventory = ({ order, setOrder }) => {
                         return <InventoryItem item={item} updateCart={updateCart} index={index} key={index} />
                     })}
                 </div>
+                <div className="w-full bg-background-300 p-2 flex justify-between">
+                    <p>Don’t see what you need? <strong>Call us at <a href="tel:8555096683">855-509-6683</a></strong> for more storage options!</p>
+                </div>
             </div>
 
             <div className="flex flex-col w-1/2 gap-5  bg-background-200 rounded-md overflow-hidden">
