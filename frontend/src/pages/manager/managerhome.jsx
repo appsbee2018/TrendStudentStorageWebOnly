@@ -20,14 +20,16 @@ const ManagerHome = () => {
     const [itemQuantities, setItemQuantities] = useState([]);
     const [users, setUsers] = useState([]);
     const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         getItems();
         getOrders();
         getUsers();
-    }, []);
+    }, [year]);
 
     const getItems = async () => {
+        setLoading(true);
         try {
             const body = {
                 year: year
@@ -55,10 +57,13 @@ const ManagerHome = () => {
             }
         } catch (error) {
             console.log(error.message);
+        } finally {
+            setLoading(false);
         }
     }
 
     const getOrders = async () => {
+        setLoading(true);
         try {
             const body = {
                 year: year
@@ -86,10 +91,13 @@ const ManagerHome = () => {
             
         } catch (error) {
             console.log(error.message);
+        } finally {
+            setLoading(false);
         }
     }
 
     const getUsers = async () => {
+        setLoading(true);
         try {
             const body = {
                 year: year
@@ -113,6 +121,8 @@ const ManagerHome = () => {
             }
         } catch (error) {
             console.log(error.message);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -138,7 +148,14 @@ const ManagerHome = () => {
 
                         <div className="flex-grow flex items-center justify-around w-full">
                             <div className="flex flex-col justify-center items-center text-2xl text-green-600">
-                                {items.price > 0 ? <h2>${items.price}</h2> : <FontAwesomeIcon className=" animate-spin size-1/4 text-primary" icon={faCircleNotch} />}
+                                {/* {items.price > 0 ? <h2>${items.price}</h2> : <FontAwesomeIcon className=" animate-spin size-1/4 text-primary" icon={faCircleNotch} />} */}
+                                { loading ? (
+                                    <FontAwesomeIcon className=" animate-spin size-1/4 text-primary" icon={faCircleNotch} />
+                                ) : items.price > 0 ? (
+                                    <h2>{items.price}</h2>
+                                ) : (
+                                    <p>No data found for {year}</p>
+                                )}
                             </div>
                         </div>
                     </div> : null
@@ -151,7 +168,15 @@ const ManagerHome = () => {
 
                     <div className="flex-grow flex items-center justify-around w-full">
                         <div className="flex flex-col justify-center items-center text-2xl">
-                            {items.volume > 0 ? <h2>{items.volume} ft&sup3;</h2> : <FontAwesomeIcon className=" animate-spin size-1/4 text-primary" icon={faCircleNotch} />}
+                            { loading ? (
+                                <FontAwesomeIcon className="animate-spin size-1/4 text-primary" icon={faCircleNotch} />
+                                ) : items.volume > 0 ? (
+                                    <h2>{items.volume} ft&sup3;</h2>
+                                ) : (
+                                <p>No data found for {year}</p>
+                            )}
+
+                            {/* {items.volume > 0 ? <h2>{items.volume} ft&sup3;</h2> : <FontAwesomeIcon className=" animate-spin size-1/4 text-primary" icon={faCircleNotch} />} */}
                         </div>
                     </div>
                 </div>    
@@ -163,7 +188,15 @@ const ManagerHome = () => {
 
                     <div className="flex-grow flex items-center justify-around w-full">
                         <div className="flex flex-col justify-center items-center text-2xl">
-                            {orders.length > 0 ? <h2>{orders.length}</h2> : <FontAwesomeIcon className=" animate-spin size-1/4 text-primary" icon={faCircleNotch} />}
+                            { loading ? (
+                                <FontAwesomeIcon className="animate-spin size-1/4 text-primary" icon={faCircleNotch} />
+                            ) : orders.length > 0 ? (
+                                <h2>{orders.length}</h2>
+                            ) : (
+                                <p>No data found for {year}</p>
+                            )}
+
+                            { /* {orders.length > 0 ? <h2>{orders.length}</h2> : <FontAwesomeIcon className=" animate-spin size-1/4 text-primary" icon={faCircleNotch} />} */}
                         </div>
                     </div>
                 </div>    
@@ -175,14 +208,22 @@ const ManagerHome = () => {
 
                     <div className="flex-grow flex items-center justify-around w-full">
                         <div className="flex flex-col justify-center items-center text-2xl">
-                            {users.length > 0 ? <h2>{users.length}</h2> : <FontAwesomeIcon className=" animate-spin size-1/4 text-primary" icon={faCircleNotch} />}
+                            {/* {users.length > 0 ? <h2>{users.length}</h2> : <FontAwesomeIcon className=" animate-spin size-1/4 text-primary" icon={faCircleNotch} />} */}
+                            
+                            { loading ? (
+                                <FontAwesomeIcon className="animate-spin size-1/4 text-primary" icon={faCircleNotch} />
+                            ) : users.length > 0 ? (
+                                <h2>{users.length}</h2>
+                            ) : (
+                                <p>No data found for {year}</p>
+                            )}
 
                         </div>
                     </div>
                 </div>  
 
 
-                <ItemQuantityWidget items={itemQuantities} />
+                <ItemQuantityWidget loading={loading} year={year} items={itemQuantities} />
 
                 
 
@@ -194,12 +235,14 @@ const ManagerHome = () => {
 const GroupWidget = ({ year }) => {
     const [cookies] = useCookies(['user', 'session'])
     const [groups, setGroups] = useState([]);
+    const [loading, setLoading] = useState([]);
 
     useEffect(() => {
         getGroups();
     }, [year])
 
     const getGroups = async() => {
+        setLoading(true);
         try {
             const body = {
                 year: year
@@ -225,6 +268,8 @@ const GroupWidget = ({ year }) => {
         } catch (error) {
             console.log(error.message);
             myToast("Unexpected Error", 1);
+        } finally { 
+            setLoading(false); 
         }
     }
 
@@ -237,12 +282,23 @@ const GroupWidget = ({ year }) => {
             </div>
 
             <div className="flex-grow flex items-center justify-around w-full overflow-scroll">
-                {
+
+                { loading ? (
+                                <FontAwesomeIcon className="animate-spin size-1/4 text-primary" icon={faCircleNotch} />
+                            ) : groups.length !== 0 ? (
+                                (groups?.sort((groupA, groupB) => groupA.name.localeCompare(groupB.name)).map((group, index) => {
+                                    return <GroupTotals group={group} key={index} />
+                                }))
+                            ) : (
+                                <h2 className="text-xl">No data found for {year}</h2>
+                            )}
+
+                {/* {
                     groups.length !== 0 ?
                     (groups?.sort((groupA, groupB) => groupA.name.localeCompare(groupB.name)).map((group, index) => {
                         return <GroupTotals group={group} key={index} />
                     })) : <FontAwesomeIcon className=" animate-spin size-1/4 text-primary" icon={faCircleNotch} />
-                }
+                } */}
             </div>
         </div>
     )
@@ -323,8 +379,7 @@ const GroupTotals = ({ group, key }) => {
     )
 }
 
-const ItemQuantityWidget = ({ items }) => {
-    
+const ItemQuantityWidget = ({ items, loading, year }) => {
     
     return (
         <div className="flex flex-col col-span-3 row-span-1 justify-start items-center rounded-md shadow-xl bg-background-200 border-2 border-black border-opacity-5 ">
@@ -333,7 +388,23 @@ const ItemQuantityWidget = ({ items }) => {
             </div>
 
             <div className="flex-grow flex items-center justify-around w-full">
-                {
+
+                { loading ? (
+                    <FontAwesomeIcon className="animate-spin size-1/4 text-primary" icon={faCircleNotch} />
+                ) : items?.length !== 0 ? (
+                    (items?.map((item, index) => {
+                        return (
+                            <div key={item?.id} className="flex flex-col justify-center items-center text-2xl">
+                                <h2>{item?.name}</h2>
+                                <h2>{item?.quantity}</h2>
+                            </div>
+                        )
+                    }))
+                ) : (
+                    <h2 className="text-xl">No data found for {year}</h2>
+                )}
+
+                {/* {
                     items?.length !== 0 ?
                     (items?.map((item, index) => {
                         return (
@@ -343,7 +414,7 @@ const ItemQuantityWidget = ({ items }) => {
                             </div>
                         )
                     })) : <FontAwesomeIcon className=" animate-spin size-1/4 text-primary" icon={faCircleNotch} />
-                }
+                } */}
             </div>
         </div>
     )
