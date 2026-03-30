@@ -43,9 +43,13 @@ const ManagerHome = () => {
                 body: JSON.stringify(body)
             });
             
-            const res = await req.json();
+            if(req.status === 204) {
+               setItems([]);
+               setItemQuantities([]);
+            }
 
             if(req.status === 200) {
+                const res = await req.json();
                 setItems(res);
                 setItemQuantities([res.quantities[0], res.quantities[1], res.quantities[2]]);
             }
@@ -59,7 +63,7 @@ const ManagerHome = () => {
             const body = {
                 year: year
             }
-
+             
             const req = await fetch(`${APIpath}/admin/getorders`, {
                 method: 'POST',
                 headers: {
@@ -68,13 +72,18 @@ const ManagerHome = () => {
                     'authorization': `bearer ${cookies.session}`
                 },
                 body: JSON.stringify(body)
-            });
-            
-            const res = await req.json();
-
-            if(req.status === 200) {
-                setOrders(res.orders);
+            });          
+//            const res = await req.json();
+            if (req.status === 204) {
+                setOrders([]);
             }
+            if (req.status === 200) {
+                const res = await req.json();
+                setOrders(res.orders);
+            } else {
+                console.log(`Server error: ${req.status}`);
+            }
+            
         } catch (error) {
             console.log(error.message);
         }
@@ -95,10 +104,11 @@ const ManagerHome = () => {
                 },
                 body: JSON.stringify(body)
             });
-            
-            const res = await req.json();
-
+            if(req.status === 204) {
+                setUsers([]);
+            }
             if(req.status === 200) {
+                const res = await req.json();
                 setUsers(res.users);
             }
         } catch (error) {
@@ -195,7 +205,6 @@ const GroupWidget = ({ year }) => {
                 year: year
             }
             
-
             const req = await fetch(`${APIpath}/managersettings/getgroupsbyyear`, {
                 method: 'POST',
                 headers: {
@@ -206,9 +215,11 @@ const GroupWidget = ({ year }) => {
                 body: JSON.stringify({ year: year})
             });
 
-            const res = await req.json();
-
-            setGroups(res.groups);
+            if(req.status === 200)
+            {
+                const res = await req.json();
+                setGroups(res.groups);
+            }
             
 
         } catch (error) {
@@ -326,7 +337,7 @@ const ItemQuantityWidget = ({ items }) => {
                     items?.length !== 0 ?
                     (items?.map((item, index) => {
                         return (
-                            <div className="flex flex-col justify-center items-center text-2xl">
+                            <div key={item?.id} className="flex flex-col justify-center items-center text-2xl">
                                 <h2>{item?.name}</h2>
                                 <h2>{item?.quantity}</h2>
                             </div>

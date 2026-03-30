@@ -115,7 +115,7 @@ const getOrders = async (req, res) => {
         JOIN users u ON o.user_id = u.id
         JOIN groups g ON o.group_id = g.id
         WHERE g.pickup BETWEEN $1 AND $2;`, [start, end]);
-
+        
         if(getOrders.rowCount === 0) {
             return res.status(204).json({ message: 'No Users Found'});
         }
