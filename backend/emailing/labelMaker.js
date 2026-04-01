@@ -9,7 +9,7 @@ const fs = require('fs');
 const createLabels = (studentName, location, items,  boxCount, group) => {
     
 
-    const doc = new PDFDocument({ margin: 100 });
+    const doc = new PDFDocument({ margin: 80 });
     const buffers = [];
     const readableStream = new Readable({
         read(size) {
@@ -47,13 +47,13 @@ const createLabels = (studentName, location, items,  boxCount, group) => {
             const imgHeight = 200;
 
             const xPos = (pageWidth - imgWidth) / 2;
-            const yPos = (pageHeight - ((imgHeight*2))+25);
+            //const yPos = (pageHeight - ((imgHeight*2))+25);
 
             const logo = fs.readFileSync('./emailing/Trend_Logo.png');
 
             
             doc.image(logo, xPos, 0, {
-                fit: [350, 200],  
+                fit: [350, 150],  
                 align: 'center',  
                 valign: 'center', 
             });
@@ -92,18 +92,14 @@ const createLabels = (studentName, location, items,  boxCount, group) => {
 
             // Instructions
             doc.font('Helvetica').fontSize(16).text('Please print out and attach to each item', { align: 'center' });
-            doc.moveDown(1);  
+            doc.moveDown(2);
             
 
-            
-
-            doc.image(png, xPos, yPos, {
+            doc.image(png, xPos, doc.y, {
                 fit: [350, 200],
                 align: 'center',
                 valign: 'center',
             });
-
-            
 
             barcodeCount++;
 
