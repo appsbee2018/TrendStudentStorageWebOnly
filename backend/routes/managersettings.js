@@ -220,4 +220,52 @@ const addAdmin = async(req, res) => {
     }
 }
 
-module.exports = { addGroup, getGroupsByYear, updateGroup, deleteGroup, getLogs, updateItem, getItems, deleteItem, addAdmin }
+const deleteAdmin = async(req, res) => {
+
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ message: "No token provided" });
+    const user = jwt.decode(authHeader.split(" ")[1]);
+
+    const client = await pool.connect(); 
+    try {
+        const { id } = req.body;
+        if (!id) {
+            return res.status(400).json({ message: "No admin ID provided for deletion" });
+        }
+
+        await client.query('BEGIN'); 
+        const query = `
+            DELETE FROM users
+            WHERE id = $1
+            RETURNING *;
+        `;
+        const result = await client.query(query, [id]);
+        if (result.rowCount === 0) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        await client.query('COMMIT');
+        return res.status(200).json({ 
+            message: "Admin deleted successfully" 
+        });
+
+    } catch (error) {
+
+        await client.query('ROLLBACK'); 
+        console.error("Delete Error:", error.message);
+        res.status(500).json(error.message);
+        writeLog({ 
+            userName: user?.name || "Unknown", 
+            description: error.message, 
+            route: req.originalUrl, 
+            statusCode: 500
+        });
+        res.status(500).json({ error: "Internal Server Error", details: error.message });
+
+    } finally {
+        client.release();
+    }
+}
+
+module.exports = { addGroup, getGroupsByYear, updateGroup, deleteGroup, getLogs, updateItem, getItems, deleteItem, addAdmin, deleteAdmin }

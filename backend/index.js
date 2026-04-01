@@ -45,6 +45,7 @@ app.get("/managersettings/getitems", authenticateToken, (req, res) => managerset
 app.post("/managersettings/updateitem", authenticateToken, (req, res) => managersettings.updateItem(req, res));
 app.post("/managersettings/deleteitems", authenticateToken, (req, res) => managersettings.deleteItem(req, res));
 app.post("/managersettings/addadmin", (req, res) => managersettings.addAdmin(req, res));
+app.post("/managersettings/deleteadmin", authenticateToken, (req, res) => managersettings.deleteAdmin(req, res));
 
 
 app.post("/order/checkterms", authenticateToken, (req, res) => order.checkTerms(req, res));

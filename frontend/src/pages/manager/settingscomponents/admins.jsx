@@ -9,13 +9,26 @@ import { useCookies } from "react-cookie";
 import myToast from "../../../myToast";
 import APIpath from "../../../apipath";
 import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community'; 
+import { toast } from "react-toastify";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 const Admins = () => {
     const [admins, setAdmins] = useState([]);
     const [addingAdmin, setAddingAdmin] = useState(false);
+    const [selectedAdmins, setSelectedAdmins] = useState([]);
+    const [gridApi, setGridApi] = useState(null);
     const [columnNames, setColumnNames] = useState([
+        { 
+            field: "id", 
+            width: 30,
+            headerName: "",  
+            filter: false, 
+            sortable: false,
+            resizable: false,
+            suppressHeaderMenuButton: true,
+            cellRenderer: () => null
+        },
         { field: "name", flex: 1, filter: true, headerName: "Name" },
         { field: "email", flex: 1, filter: true, headerName: "Email"  },
         { field: "phone", flex: 1, filter: true, headerName: "Phone"  },
@@ -23,7 +36,14 @@ const Admins = () => {
     ]);
 
     const [cookies] = useCookies(['user', 'session']);
-
+    const onGridReady = (params) => {
+        setGridApi(params.api);
+    };
+    const onSelectionChanged = () => {
+        const selectedNodes = gridApi.getSelectedNodes();
+        const selectedData = selectedNodes.map(node => node.data);
+        setSelectedAdmins(selectedData);
+    };
     useEffect(() => {
         getAdmins();
     }, [cookies.session]);
@@ -83,7 +103,49 @@ const Admins = () => {
     //     }
     // }
 
+    //Adding Admin Delete Function
+    const handleDeleteAdmins = async () => {
+        const selectedNodes = gridApi.getSelectedNodes();
+        const selectedData = selectedNodes.map(node => node.data);
 
+        // 1. Toast if nothing is selected
+        if (selectedData.length === 0) {
+            toast.error("Please select at least one admin to delete.");
+            return;
+        }
+
+        const confirmMessage = `Are you sure? This action is undone. You are about to delete ${selectedData[0].email} admin.`;
+        if (window.confirm(confirmMessage)) {
+            try {
+                
+                const idToDelete = selectedData[0].id;
+                const response = await fetch(`${APIpath}/managersettings/deleteadmin`, {
+                    method: 'POST',
+                    headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'authorization': `bearer ${cookies.session}`
+                    },
+                    body: JSON.stringify({ id: idToDelete }),
+                });
+                if (response.ok) 
+                {
+                    toast.success("Admins deleted successfully!");
+                    getAdmins();
+                    gridApi.deselectAll();
+                } 
+                else 
+                {
+                    toast.error("Failed to delete admins from the database.");
+                }
+
+            } catch (error) {
+                console.log("Delete Error", error);
+                toast.error("A server error occured");
+            }
+
+        }
+    }
 
     return (
         <div className="w-full h-full mb-10 overflow-y-auto">
@@ -92,6 +154,7 @@ const Admins = () => {
 
                 <div className="flex gap-5">
                     <button onClick={() => setAddingAdmin(true)} className="bg-secondary rounded-md text-white p-1 ">Add Admin</button>
+                     <button onClick={() => handleDeleteAdmins(true)} className="bg-red-700 rounded-md text-white p-1 ">Delete Admin</button>
                 </div>
             </div>
 
@@ -101,6 +164,13 @@ const Admins = () => {
                     admins.length > 0 ? <AgGridReact
                         rowData={admins}
                         columnDefs={columnNames}
+                        rowSelection={{ 
+                            mode: 'singleRow', 
+                            headerCheckbox: false 
+                        }}
+                        onGridReady={onGridReady}
+                        onSelectionChanged={onSelectionChanged}
+                        getRowId={(params) => String(params.data.id)}
                         pagination={true}
                         domLayout="normal"
                     /> : null
