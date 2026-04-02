@@ -246,6 +246,15 @@ const deleteAdmin = async(req, res) => {
         }
 
         await client.query('COMMIT');
+
+        // Log Success
+        writeLog({ 
+            userName: user?.name || "System", 
+            description: `Deleted Admin ID ${id}.`, 
+            route: req.originalUrl, 
+            statusCode: 200 
+        });
+
         return res.status(200).json({ 
             message: "Admin deleted successfully" 
         });
@@ -268,4 +277,78 @@ const deleteAdmin = async(req, res) => {
     }
 }
 
-module.exports = { addGroup, getGroupsByYear, updateGroup, deleteGroup, getLogs, updateItem, getItems, deleteItem, addAdmin, deleteAdmin }
+//Adding Backend Function to Delete Student & its Orders
+const deleteStudent = async(req, res) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ message: "No token provided" });
+    const user = jwt.decode(authHeader.split(" ")[1]);
+
+    const client = await pool.connect(); 
+
+    try {
+
+        const { studentId } = req.body;
+        if (!studentId) {
+            return res.status(400).json({ message: "No Student ID provided for deletion" });
+        }
+
+        await client.query('BEGIN'); 
+
+        //Deleting Order Items
+        const deleteOrderItemsQuery = `
+            DELETE FROM order_item 
+            WHERE order_id IN (SELECT id FROM orders WHERE user_id = $1)
+        `;
+        await client.query(deleteOrderItemsQuery, [studentId]);
+
+        //Deleting Orders
+        const deleteOrdersQuery = `DELETE FROM orders WHERE user_id = $1`;
+        await client.query(deleteOrdersQuery, [studentId]);
+        
+        const deleteTermQuery = `DELETE FROM term_acknowledgement WHERE user_id = $1`;
+        await client.query(deleteTermQuery, [studentId]);
+
+        const deleteUserQuery = `DELETE FROM users WHERE id = $1 RETURNING *`;
+        const result = await client.query(deleteUserQuery, [studentId]);
+
+        if (result.rowCount === 0) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ message: "Student record not found" });
+        }
+
+        await client.query('COMMIT');
+
+        // Log Success
+        writeLog({ 
+            userName: user?.name || "System", 
+            description: `Deleted Student ID ${studentId} and all related orders/items.`, 
+            route: req.originalUrl, 
+            statusCode: 200 
+        });
+
+        return res.status(200).json({ message: "Student and all associated data deleted successfully." });
+
+    } catch (error) {
+
+        await client.query('ROLLBACK'); 
+        console.error("Delete Error:", error.message);
+        res.status(500).json(error.message);
+        writeLog({ 
+            userName: user?.name || "Unknown", 
+            description: error.message, 
+            route: req.originalUrl, 
+            statusCode: 500
+        });
+
+        if (!res.headersSent) {
+            return res.status(500).json({ error: "Internal Server Error", details: error.message });
+        }
+
+    } finally {
+        client.release();
+    }
+
+
+}
+
+module.exports = { addGroup, getGroupsByYear, updateGroup, deleteGroup, getLogs, updateItem, getItems, deleteItem, addAdmin, deleteAdmin, deleteStudent }

@@ -74,6 +74,7 @@ const Review = ({ order, setOrder, isArriveEarly, setIsArriveEarly}) => {
                 {/* 2. Updated Radio Button Section */}
                 <div className="mt-6 mb-4 p-4 bg-background-200 rounded-md border border-background-300">
                     <h2 className="text-2xl font-hind font-semibold mb-2">Will you arrive back on campus early?</h2>
+                    <h4 className="italic mb-3">Fees may apply for any early drop offs requested outside of the registration window.</h4>
                     <div className="flex gap-10 text-xl">
                         <label className="flex items-center gap-2 cursor-pointer">
                             <input 

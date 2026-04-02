@@ -10,6 +10,7 @@ import myToast from "../../../myToast";
 import APIpath from "../../../apipath";
 import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community'; 
 import { toast } from "react-toastify";
+import Swal from 'sweetalert2';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -114,37 +115,47 @@ const Admins = () => {
             return;
         }
 
-        const confirmMessage = `Are you sure? This action is undone. You are about to delete ${selectedData[0].email} admin.`;
-        if (window.confirm(confirmMessage)) {
-            try {
-                
-                const idToDelete = selectedData[0].id;
-                const response = await fetch(`${APIpath}/managersettings/deleteadmin`, {
-                    method: 'POST',
-                    headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'authorization': `bearer ${cookies.session}`
-                    },
-                    body: JSON.stringify({ id: idToDelete }),
-                });
-                if (response.ok) 
+        Swal.fire({
+            title: 'Are you sure?',
+            text: `You are about to delete ${selectedData[0].email}. This action cannot be undone!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33', // Professional red for delete
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try 
                 {
-                    toast.success("Admins deleted successfully!");
-                    getAdmins();
-                    gridApi.deselectAll();
+                    const idToDelete = selectedData[0].id;
+                    const response = await fetch(`${APIpath}/managersettings/deleteadmin`, {
+                        method: 'POST',
+                        headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'authorization': `bearer ${cookies.session}`
+                        },
+                        body: JSON.stringify({ id: idToDelete }),
+                    });
+                    if (response.ok) 
+                    {
+                        Swal.fire('Deleted!','Admin has been removed successfully.','success');
+                        getAdmins();
+                        gridApi.deselectAll();
+                    } 
+                    else 
+                    {
+                        const errorData = await response.json();
+                        Swal.fire('Error', errorData.message || "Failed to delete admin.", 'error');
+                    }
                 } 
-                else 
-                {
-                    toast.error("Failed to delete admins from the database.");
+                catch (error) {
+                    console.log("Delete Error", error);
+                    toast.error("A server error occured");
                 }
-
-            } catch (error) {
-                console.log("Delete Error", error);
-                toast.error("A server error occured");
             }
-
-        }
+        });
     }
 
     return (
@@ -154,7 +165,7 @@ const Admins = () => {
 
                 <div className="flex gap-5">
                     <button onClick={() => setAddingAdmin(true)} className="bg-secondary rounded-md text-white p-1 ">Add Admin</button>
-                     <button onClick={() => handleDeleteAdmins(true)} className="bg-red-700 rounded-md text-white p-1 ">Delete Admin</button>
+                    <button onClick={() => handleDeleteAdmins(true)} className="bg-red-700 rounded-md text-white p-1 ">Delete Admin</button>
                 </div>
             </div>
 
