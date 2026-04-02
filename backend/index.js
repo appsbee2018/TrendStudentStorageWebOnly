@@ -15,11 +15,11 @@ const mobile = require('./routes/mobile');
 const authenticateToken = require('./routes/jwtverification');
 require('dotenv').config();
 
-app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'authorization']
-}));
+// app.use(cors({
+//     origin: '*',
+//     methods: ['GET', 'POST', 'PUT', 'OPTIONS'],
+//     allowedHeaders: ['Content-Type', 'authorization']
+// }));
 
 app.use(express.json());
 
