@@ -93,7 +93,7 @@ const Login = () => {
 
                         <div className="w-full flex flex-col justify-center items-center gap-3">
                             <input className="bg-primary text-white w-1/2 py-1 rounded-md" type="submit" value="Log In" />
-                            <button className="underline text-primary" onClick={() => navigator("/forgotpassword")}>forgot password?</button>
+                            <button className="underline text-primary" onClick={() => navigator("/forgotpassword")}>Forgot password?</button>
                         </div>
                     </form>
 
