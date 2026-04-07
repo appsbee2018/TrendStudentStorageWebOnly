@@ -80,7 +80,10 @@ const Login = () => {
                 </div>
 
                 <div className="w-1/2 h-full bg-background-100 flex flex-col justify-around items-center py-3">
-                    <h1 className="text-4xl">Welcome Back!</h1>
+                    <div className="p-4 flex flex-col items-center">
+                        <h1 className="text-3xl text-center">Welcome Harvard Students!</h1>
+                        <p className="italic text-center mt-3">If you’re an existing user, welcome back. If you’re new to student storage, please create an account to get started.</p>
+                    </div>
 
                     <form className="flex flex-col gap-10 w-full justify-center items-center" action="" onSubmit={(e) => login(e)}>
                         <div className="flex flex-col gap-2 w-3/5">
