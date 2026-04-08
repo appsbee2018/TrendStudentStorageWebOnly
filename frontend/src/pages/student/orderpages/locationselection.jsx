@@ -17,7 +17,7 @@ const LocationSelection = ({ order, setOrder }) => {
 
     useEffect(() => {
         if(order.group.name !== "A") {
-            setLocations(['14 - 18 Mill St.', 'Quad Main Lot'])
+            setLocations(['14 - 18 Mill St.', 'Quad Main Lot', 'Littauer Center'])
         }
         console.log(order.group);
         
