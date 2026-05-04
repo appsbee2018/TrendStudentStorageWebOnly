@@ -71,22 +71,22 @@ const Login = () => {
     }
 
     return (
-        <div className="flex w-full h-[100vh] justify-center items-center bg-background-300 font-open">
-            <div className="flex w-1/2 h-3/5  justify-center items-center shadow-2xl rounded-md overflow-hidden">
-                <div className="w-1/2 h-full flex flex-col bg-primary justify-around items-center px-10 rounded-md">
-                    <h1 className="text-white text-3xl">Trend Moving & Storage</h1>
+        <div className="flex w-full min-h-screen justify-center overflow-hidden items-center bg-background-300 font-open py-4 ">
+            <div className="flex flex-col md:flex-row w-[95%] md:w-1/2 min-h-[60vh] md:h-3/5 justify-center items-stretch shadow-2xl rounded-md overflow-hidden">
+                <div className="w-full md:w-1/2 flex flex-col bg-primary justify-center items-center px-10 rounded-md gap-6">
+                    <h1 className="text-white text-3xl text-center mb-2 mt-2">Trend Moving & Storage</h1>
                     <img className="w-[150px] bg-background-100 rounded-md" src={Logo} alt="Trend Moving logo" />
-                    <h2 className="text-white text-xl text-center">Student Storage Portal</h2>
+                    <h2 className="text-white text-xl text-center mt-2 mb-2">Student Storage Portal</h2>
                 </div>
 
-                <div className="w-1/2 h-full bg-background-100 flex flex-col justify-around items-center py-3">
+                <div className="w-full md:w-1/2 bg-background-100 flex flex-col justify-center items-center py-6">
                     <div className="p-4 flex flex-col items-center">
                         <h1 className="text-3xl text-center">Welcome Harvard Students!</h1>
                         <p className="italic text-center mt-3">If you’re an existing user, welcome back. If you’re new to student storage, please create an account to get started.</p>
                     </div>
 
                     <form className="flex flex-col gap-10 w-full justify-center items-center" action="" onSubmit={(e) => login(e)}>
-                        <div className="flex flex-col gap-2 w-3/5">
+                        <div className="flex flex-col gap-2 w-[85%] md:w-4/5">
                             <Input title="Email" type="text" required={true} value={email} onChange={setEmail} />
                             <Input title="Password" type="password" required={true} value={password} onChange={setPassword} />
                         </div>

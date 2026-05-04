@@ -6,8 +6,10 @@ import React, { useState } from "react";
 import Logo from "../../assets/logos/Trend_Logo.png";
 import path from "../../frontendpath.js";
 import Input from "../../components/input.jsx";
+import myToast from "../../myToast.js";
 import APIpath from "../../apipath.js";
 import { useNavigate } from "react-router";
+import { toast } from "react-toastify";
 
 const Register = () => {
     const [name, setName] = useState("");
@@ -48,6 +50,9 @@ const Register = () => {
                 setEmailSent(true);
                 setUser(res);
             }
+            else if (req.status === 409) {
+               toast.error("Email already exists. Try logging in again or resetting your password");
+            }
             
         } catch (error) {
             console.log(error.message);
@@ -66,22 +71,22 @@ const Register = () => {
     }
 
     return (
-        <div className="flex w-full h-[100vh] justify-center items-center bg-background-300 font-open">
-            <div className="flex w-1/2 h-3/5 flex-row-reverse  justify-center items-center shadow-2xl rounded-md overflow-hidden">
+        <div className="flex w-full min-h-screen p-4 justify-center items-center bg-background-300 font-open">
+            <div className="flex w-full max-w-4xl min-h-[60vh] md:h-3/5 flex-col-reverse md:flex-row-reverse justify-center items-stretch shadow-2xl rounded-md overflow-hidden">
                 {
                     (!emailSent ? 
                     <>
-                        <div className="w-1/2 h-full flex flex-col bg-primary justify-around items-center px-10 rounded-md">
+                        <div className="w-full md:w-1/2 flex flex-col bg-primary justify-center gap-6 py-10 items-center px-10 rounded-md">
                             <h1 className="text-white text-3xl font-hind font-semibold text-center">Trend Moving & Storage</h1>
                             <img className="w-[150px] bg-background-100 rounded-md" src={Logo} alt="Trend Moving logo" />
                             <h2 className="text-white text-xl text-center">Student Storage Portal</h2>
                         </div>
         
-                        <div className="w-1/2 h-full bg-background-100 flex flex-col  justify-around items-center py-3">
-                            <h1 className="text-4xl font-hind font-semibold">Register</h1>
+                        <div className="w-full md:w-1/2 bg-background-100 flex flex-col  justify-around items-center py-10 px-6">
+                            <h1 className="text-4xl font-hind font-semibold mb-4">Register</h1>
         
                             <form className="flex flex-col gap-10 w-full justify-center items-center" onSubmit={(e) => register(e)} action="">
-                                <div className="flex flex-col gap-2 w-3/5">
+                                <div className="flex flex-col gap-2 w-[90%] md:w-4/5">
                                     <Input required={true} title="Full Name" type="text" value={name} onChange={setName} />
                                     <Input required={true} title="Email" type="email" value={email} onChange={setEmail} />
                                     <Input required={true} title="Phone" type="tel" value={phone} onChange={setPhone} />
@@ -92,13 +97,13 @@ const Register = () => {
                                 <input className="bg-primary text-white w-1/2 py-1 rounded-md cursor-pointer" type="submit" value="Register!" />
                             </form>
         
-                            <div>
+                            <div className="mt-4">
                                 <h2 >Already have an account? login <button className="underline text-primary" onClick={() => navigator("/login")}>here</button>!</h2>
                             </div>
                         </div> 
                     </> 
                     : 
-                    <div className="w-full h-full flex flex-col justify-around items-center bg-background-100">
+                    <div className="w-full h-full p-8 text-center flex flex-col justify-around items-center bg-background-100">
                         <h1 className="text-3xl font-hind font-semibold">Verification Email Sent!</h1>
                         <p>Thank you for registering with us {user.name.split(" ")[0]}! An email has been sent with your 6 digit verification code.</p>
                         <button onClick={() => navigator(`/register/verify/${user.id}`)} className="bg-primary text-white font-hind font-semibold px-4 py-2 rounded-md">Verify</button>

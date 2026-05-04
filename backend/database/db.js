@@ -22,8 +22,8 @@ const pool = new Pool({
 });
 
 // const pool = new Pool({
-//     user: 'postgres',
-//     password: "rootadmin",
+//     user: 'naimatullahmemon',
+//     password: "",
 //     host: "localhost",
 //     port: 5432,    
 //     database: "student_storage_v2",

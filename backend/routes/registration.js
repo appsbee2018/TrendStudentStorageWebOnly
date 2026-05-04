@@ -25,7 +25,19 @@ const initialSignUp = async(req, res) => {
         writeLog({ userName: name, description: "Initial registration complete and email sent.", route: "/registration/signup", statusCode: 200});
 
     } catch (error) {
-        console.log(error.message);
+        console.log("Error details:", error);
+
+        if (error.code === '23505') {
+            const description = "Email already exists.";
+            res.status(409).json({ error: description }); 
+            return writeLog({ 
+                userName: req.name, 
+                description: error.message, 
+                route: "/registration/signup", 
+                statusCode: 409
+            });
+        }
+
         res.status(500).json(error.message);
         writeLog({ userName: req.name, description: error.message, route: "/registration/signup", statusCode: 500});
     }

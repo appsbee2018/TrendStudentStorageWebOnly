@@ -46,21 +46,22 @@ const ForgotPassword = () => {
     }
 
     return (
-        <div className="flex w-full h-[100vh] justify-center items-center bg-background-300 font-open">
-            <div className="flex w-1/2 h-3/5 flex-row-reverse  justify-center items-center shadow-2xl rounded-md overflow-hidden">
-                <div className="w-full h-full bg-background-100 flex flex-col  justify-around items-center py-3">
+        <div className="flex w-full min-h-screen p-4 justify-center items-center bg-background-300 font-open">
+            <div className="flex w-full md:w-full max-w-5xl min-h-[50vh] md:h-3/5 justify-center items-stretch shadow-2xl rounded-md overflow-hidden">
+                <div className="w-full flex-1 bg-background-100 flex flex-col justify-center items-center py-10 px-6">
                     <h1 className="text-4xl font-hind font-semibold">Forgot Password</h1>
 
                     <form className="flex flex-col gap-10 w-full justify-center items-center" onSubmit={(e) => sendReset(e)}  action="">
 
                         <h2>Please Enter the Email for your Account.</h2>
 
-                        <div className="flex flex-col gap-2 w-3/5">
+                        <div className="flex flex-col gap-2 w-[90%] md:w-3/5">
                             <Input title="Email" required={true} type="text" value={email} onChange={setEmail} />
                         </div>
 
-                        <input className="bg-primary text-white w-1/2 py-1 rounded-md cursor-pointer" type="submit" value="Verify" />
+                        <input className="bg-primary text-white w-1/2 py-1 rounded-md cursor-pointer" type="submit" value="Reset Password" />
                     </form>
+                    <p className="mt-8"><a href="/" className="bg-primary text-white w-1/2 py-1 rounded-md cursor-pointer py-3 px-3">Back to Login</a></p>
                 </div>
             </div>
         </div>
