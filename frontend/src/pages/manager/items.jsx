@@ -26,6 +26,18 @@ const Items = () => {
         { field: "location", flex: 1, filter: true, headerName: "Location" },
         { field: "group_name", flex: 1, filter: true, headerName: "Group" },
         { field: "vault", flex: 1, filter: true, headerName: "Vault" },
+        { field: "status", flex: 1, filter: true, headerName: "Status", valueGetter: (params) => {
+                if (params.data.vault) {
+                    return "Checked In";
+                }
+                return params.data.status;
+            }, cellStyle: (params) => {
+            if (params.value === "Checked In") {
+                
+                return { color: '#2ecc71', fontWeight: 'bold' };
+            }
+            return null; 
+        }},
         { field: "student_name", flex: 1, filter: true, headerName: "Student Name" },
         { field: "email", flex: 1, filter: true, headerName: "Email" },
         { field: "phone", flex: 1, filter: true, headerName: "Phone" },
