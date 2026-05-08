@@ -30,7 +30,8 @@ const Items = () => {
                 if (params.data.vault) {
                     return "Checked In";
                 }
-                return params.data.status;
+                return params.data.status ? params.data.status : "Ordered";
+                
             }, cellStyle: (params) => {
             if (params.value === "Checked In") {
                 
