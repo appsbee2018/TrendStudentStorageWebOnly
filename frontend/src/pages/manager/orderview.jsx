@@ -24,6 +24,25 @@ const OrderView = () => {
         { field: "price", flex: 1, filter: true, headerName: "Price" },
         { field: "cubic_feet", flex: 1, filter: true, headerName: "Cubic Feet" },
         { field: "id", flex: 1, filter: true, headerName: "Unit ID" },
+        { field: "vault", flex: 1, filter: true, headerName: "Vault", valueGetter: (params) => {
+            const vaultValue = params.data.vault;
+            if (!vaultValue || vaultValue === '') {
+                return "Not Assigned";
+            }
+            return vaultValue;
+        }},
+        { field: "status", flex: 1, filter: true, headerName: "Status", valueGetter: (params) => {
+                if (params.data.vault) {
+                    return "Checked In";
+                }
+                return params.data.status;
+            }, cellStyle: (params) => {
+            if (params.value === "Checked In") {
+                
+                return { color: '#2ecc71', fontWeight: 'bold' };
+            }
+            return null; 
+        }},
     ]);
     const [cost, setCost] = useState(null);
     const [volume, setVolume] = useState(null);

@@ -103,10 +103,10 @@ const Register = () => {
                         </div> 
                     </> 
                     : 
-                    <div className="w-full h-full p-8 text-center flex flex-col justify-around items-center bg-background-100">
+                    <div className="w-full p-4 flex flex-col justify-center items-center text-center bg-background-100">
                         <h1 className="text-3xl font-hind font-semibold">Verification Email Sent!</h1>
                         <p>Thank you for registering with us {user.name.split(" ")[0]}! An email has been sent with your 6 digit verification code.</p>
-                        <button onClick={() => navigator(`/register/verify/${user.id}`)} className="bg-primary text-white font-hind font-semibold px-4 py-2 rounded-md">Verify</button>
+                        <button onClick={() => navigator(`/register/verify/${user.id}`)} className="bg-primary text-white font-hind font-semibold mt-4 px-4 py-2 rounded-md">Verify</button>
                     </div>
                 )}
             </div>
