@@ -21,6 +21,7 @@ const Orders = () => {
     const navigator = useNavigate();
     const [orders, setOrders] = useState([]);
     const [columnNames, setColumnNames] = useState([
+        { field: "group_name", flex: 1, filter: true, headerName: "Group" },
         { field: "name", flex: 1, filter: true, headerName: "Name"},
         { field: "balance", flex: 1, filter: true, headerName: "Balance", type: 'numericColumn', },
         { field: "location", flex: 1, filter: true, headerName: "Location" },
@@ -28,6 +29,7 @@ const Orders = () => {
         { field: "email", flex: 1, filter: true, headerName: "Email" },
         { field: "phone", flex: 1, filter: true, headerName: "Phone" },
         { field: "isarriveearly", flex: 1, filter: true, headerName: "Arrive Early" },
+        
     ]); 
     const [gridApi, setGridApi] = useState(null);
 

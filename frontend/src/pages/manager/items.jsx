@@ -25,7 +25,13 @@ const Items = () => {
         { field: "cubic_feet", flex: 1, filter: true, headerName: "Cubic Feet", type: 'numericColumn'},
         { field: "location", flex: 1, filter: true, headerName: "Location" },
         { field: "group_name", flex: 1, filter: true, headerName: "Group" },
-        { field: "vault", flex: 1, filter: true, headerName: "Vault" },
+        { field: "vault", flex: 1, filter: true, headerName: "Vault", valueGetter: (params) => {
+            const vaultValue = params.data.vault;
+            if (!vaultValue || vaultValue === '') {
+                return "Not Assigned";
+            }
+            return vaultValue;
+        }},
         { field: "status", flex: 1, filter: true, headerName: "Status", valueGetter: (params) => {
                 if (params.data.vault) {
                     return "Checked In";

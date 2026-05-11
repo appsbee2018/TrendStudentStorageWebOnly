@@ -110,7 +110,8 @@ const getOrders = async (req, res) => {
             o.*,
             u.name,
             u.email,
-            u.phone
+            u.phone,
+            g.name as group_name
         FROM orders o
         JOIN users u ON o.user_id = u.id
         JOIN groups g ON o.group_id = g.id

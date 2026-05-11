@@ -166,7 +166,7 @@ const OrderView = () => {
                     <h2 className={`${order.paid ? 'text-green-500' : 'text-red-600'}`}>{order.paid ? 'Paid' : 'Unpaid'}</h2>
                 </div>
 
-                <div className="mt-6 mb-4 p-4 bg-background-200 rounded-md border border-background-300">
+                <div className="mt-6 mb-0 p-4 bg-background-200 rounded-md border border-background-300">
                     <h2 className="text-2xl font-hind font-semibold mb-2">Will you arrive back on campus early?</h2>
                     <h2 className={`text-2xl font-hind font-semibold mb-2 ${
                         order.isarriveearly === 'Yes' 
@@ -177,6 +177,10 @@ const OrderView = () => {
                     }`}>
                         {order.isarriveearly ? order.isarriveearly.toUpperCase() : "Not Selected"}
                     </h2>
+                </div>
+
+                <div className="mt-0 mb-0 p-4 bg-background-200 rounded-md border border-background-300">
+                    <h2 className="text-2xl font-hind mb-0"><span className="font-semibold">Group Name: </span><span className="font-regular">{order.group_name}</span></h2>
                 </div>
 
                 <div className="flex flex-col col-span-1 row-span-1 justify-start items-center rounded-md shadow-xl bg-background-200 border-2 border-black border-opacity-5 ">
