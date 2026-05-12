@@ -2,7 +2,7 @@
  * @author Tyler Marois
  * @description The managers orders page
  */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Cookies, useCookies } from "react-cookie";
 import { useNavigate, useSearchParams } from "react-router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -12,15 +12,25 @@ import APIpath from "../../apipath";
 import { AgGridReact } from 'ag-grid-react';
 import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community'; 
 import exportToExcel from "../../excelWriter";
+import Swal from 'sweetalert2'
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 const Items = () => {
+    const gridRef = useRef();
     const [cookies] = useCookies(['user', 'session']);
     const [year, setYear] = useState(new Date().getFullYear());
     const navigator = useNavigate();
     const [items, setItems] = useState([]);
     const [columnNames, setColumnNames] = useState([
+        {
+            checkboxSelection: true, 
+            headerCheckboxSelection: true,
+            sortable: false,
+            width: 60, 
+            filter: false,
+            pinned: 'none'
+        },
         { field: "name", flex: 1, filter: true, headerName: "Item Name"},
         { field: "cubic_feet", flex: 1, filter: true, headerName: "Cubic Feet", type: 'numericColumn'},
         { field: "location", flex: 1, filter: true, headerName: "Location" },
@@ -100,6 +110,60 @@ const Items = () => {
     }
 
     console.log(filteredStatus);
+
+    const deleteSelectedOrderItems = async () => {
+
+        const selectedNodes = gridRef.current.api.getSelectedNodes();
+        const idsToDelete = selectedNodes.map(node => node.data.id);
+
+        if (idsToDelete.length === 0) {
+            return myToast("Select some items first!", 1);
+        }
+
+        const body = { itemIDs: idsToDelete }
+
+        Swal.fire({
+            title: "Are you sure?",
+            text: " You want to delete selected order items. This action can't be undone",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#1b3f9d",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete!"
+        }).then(async (result) => {
+            if (result.isConfirmed)
+            {
+                try {
+
+                    const req = await fetch(`${APIpath}/admin/deleteorderitems`, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'authorization': `bearer ${cookies.session}`
+                        },
+                        body: JSON.stringify(body)
+                    });
+
+                    if(req.status === 200) {
+                        gridRef.current.api.applyTransaction({ remove: selectedNodes.map(n => n.data) });
+                        Swal.fire({
+                            title: "Deleted!",
+                            text: "Selected Item(s) are deleted",
+                            icon: "success"
+                        });
+                    } 
+                    else {
+                        Swal.fire("Error", "Could not delete the selected items.", "error");
+                    }
+
+                } catch(error){
+                    console.log(error.message);
+                    myToast('Error Deleting Operation', 1);
+                }
+            }
+        });
+    }
     
     return (
         <div className="w-full h-full mx-10 mb-10 overflow-y-auto">
@@ -108,6 +172,7 @@ const Items = () => {
                 
                 <div className="flex gap-5 items-end">
                     <button onClick={() => getFiltered()}  className="w-fit h-fit bg-green-600 px-2 py-2 rounded-lg text-white font-hind text-nowrap">Export to Excel</button>
+                    { items.length > 0 && cookies.user?.role == 'admin' ? <button onClick={() => deleteSelectedOrderItems()} className="w-fit h-fit bg-red-600 px-2 py-2 rounded-lg text-white font-hind text-nowrap">Delete Selected Items</button> : null }
 
                    {filteredStatus ? <button className="w-fit h-fit bg-red-600 px-2 py-2 rounded-lg text-white font-hind text-nowrap" onClick={() => {gridApi?.setFilterModel(null); setFilteredStatus(false)}}>Clear All Filters</button> : null}
 
@@ -122,11 +187,15 @@ const Items = () => {
                 
                 {
                     items.length > 0 ? <AgGridReact
+                        ref={gridRef}
                         onGridReady={(params) => setGridApi(params.api)}
                         rowData={items}
                         columnDefs={columnNames}
+                        rowSelection={'multiple'}
                         pagination={true}
+                        suppressRowClickSelection={true}
                         paginationPageSizeSelector={[10, 20, 50, 100, 500, 1000, 10000]}
+                        getRowId={(params) => params.data.id}
                         onFilterChanged={() => setFilteredStatus(true)}
                     /> : null
                 }

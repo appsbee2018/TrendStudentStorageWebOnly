@@ -59,12 +59,14 @@ app.post("/order/getorderitemsandtotals", authenticateToken, (req, res) => order
 app.post("/order/getgrouptotals", authenticateToken, (req, res) => order.getGroupTotals(req, res));
 app.post("/order/downloadlabels", authenticateToken, (req, res) => order.downloadLabels(req, res));
 app.post("/order/getorderitemswithquantity", authenticateToken, (req, res) => order.getOrderItemsWithQuantity(req, res));
+app.post("/order/deletesingleorder", authenticateToken, (req, res) => order.deleteSingleOrder(req, res));
 
 app.post("/admin/getitemtotals", authenticateToken, (req, res) => admin.getItemTotals(req, res));
 app.post("/admin/getstudents", authenticateToken, (req, res) => admin.getUsers(req, res));
 app.post("/admin/getorders", authenticateToken, (req, res) => admin.getOrders(req, res));
 app.post("/admin/getitems", authenticateToken, (req, res) => admin.getItems(req, res));
 app.post("/admin/updatebalance", authenticateToken, (req, res) => admin.updateBalance(req, res));
+app.post("/admin/deleteorderitems", authenticateToken, (req, res) => admin.deleteOrderItems(req, res));
 app.get("/admin/getadmins", authenticateToken, (req, res) => admin.getAdmins(req, res));
 
 app.post("/mobile/scanin", authenticateToken, (req, res) => mobile.scanIn(req, res));

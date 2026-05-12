@@ -10,6 +10,7 @@ import { AgGridReact } from 'ag-grid-react';
 import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community'; 
 import myToast from "../../myToast";
 import { toast } from "react-toastify";
+import Swal from 'sweetalert2'
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -17,6 +18,7 @@ const OrderView = () => {
     const location = useLocation();
     const [cookies] = useCookies(['user', 'session']);
     const [order, setOrder] = useState(location.state.order);
+    const navigator = useNavigate();
 
     const [items, setItems] = useState([]);
     const [inventoryHeaders, setInventoryHeaders] = useState([
@@ -141,6 +143,55 @@ const OrderView = () => {
             })
         }
 
+    const deleteOrder = () => {
+        try {
+
+            const body = {
+                orderID: order.id
+            }
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: " You want to delete order. This action can't be undone",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#1b3f9d",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete!"
+            }).then(async (result) => {
+                if (result.isConfirmed)
+                {
+                    const req = await fetch(`${APIpath}/order/deletesingleorder`, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'authorization': `bearer ${cookies.session}`
+                        },
+                        body: JSON.stringify(body)
+                    });
+
+                    if(req.status === 200) {
+                        const res = await req.json();
+                        Swal.fire({
+                            title: "Deleted!",
+                            text: "Order has been deleted.",
+                            icon: "success"
+                        });
+                        navigator('/managerdashboard/orders');
+                    }
+                    else {
+                        Swal.fire("Error", "Could not delete the order.", "error");
+                    }
+                }
+            });
+ 
+        } catch (error) {
+            console.log(error.message);
+            myToast('Error Deleting Order', 1);
+        }
+    }
+
     return (
         <div className="flex gap-5 w-full flex-grow overflow-y-auto">
             <div className="flex flex-col w-1/2 h-4/5  bg-background-200 rounded-md overflow-hidden m-5">
@@ -205,6 +256,7 @@ const OrderView = () => {
                 <div className="flex justify-evenly text-white gap-5 px-5 mb-5">
                     <button onClick={() => downloadLabels()}  className="p-1 bg-secondary flex-grow rounded-md">Download Labels</button>
                     {cookies.user?.role !== 'harvard' ? <button onClick={() => updateBalance()} className="p-1 bg-tertiary flex-grow rounded-md">Update Balance</button> : null}
+                    {cookies.user?.role == 'admin' ? <button onClick={() =>deleteOrder()} className="p-1 bg-red-500 flex-grow rounded-md">Delete Order</button> : null}
                 </div>
                 
             </div>

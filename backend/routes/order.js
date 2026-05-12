@@ -372,5 +372,72 @@ const getOrderItemsWithQuantity = async(req, res) => {
     }
 }
 
+const deleteSingleOrder = async (req, res) => {
+    const user = jwt.decode(req.headers.authorization.split(" ")[1]);
+    const { orderID } = req.body;
 
-module.exports = { checkTerms, updateTerms, createOrder, updateOrder, deleteOrder, deleteItem, getOrders, getOrderItemsAndTotals, getGroupTotals, downloadLabels, getOrderItemsWithQuantity }
+    if (!orderID) {
+        return res.status(400).json("Order ID is required");
+    }
+    const client = await pool.connect();
+
+    try {
+        await client.query('BEGIN');
+
+        const orderInfo = await client.query(`
+            SELECT u.name as customer_name 
+            FROM orders o 
+            JOIN users u ON o.user_id = u.id 
+            WHERE o.id = $1
+        `, [orderID]);
+
+        if (orderInfo.rowCount === 0) {
+            await client.query('ROLLBACK');
+            return res.status(404).json("Order not found");
+        }
+
+        const customerName = orderInfo.rows[0].customer_name;
+
+        await client.query(`
+            DELETE FROM order_item 
+            WHERE order_id = $1
+        `, [orderID]);
+
+        const deletedOrder = await client.query(`
+            DELETE FROM orders 
+            WHERE id = $1
+        `, [orderID]);
+        
+        if (deletedOrder.rowCount > 0) {
+            await client.query('COMMIT');
+            const logMessage = `Order ID: ${orderID}, Student: ${customerName} deleted success`;
+            res.status(200).json("Order and associated items deleted successfully!");
+            writeLog({ 
+                userName: user.name, 
+                description: logMessage, 
+                route: req.originalUrl, 
+                statusCode: 200 
+            });
+        }
+        else {
+            await client.query('ROLLBACK');
+            res.status(404).json("Order not found");
+        }
+
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.error(error.message);
+        res.status(500).json("Transaction failed: " + error.message);
+        writeLog({ 
+            userName: user?.name || "Unknown", 
+            description: error.message, 
+            route: req.originalUrl, 
+            statusCode: 500 
+        });
+    } finally {
+        client.release(); 
+    }
+}
+
+
+module.exports = { checkTerms, updateTerms, createOrder, updateOrder, deleteOrder, deleteItem, getOrders, getOrderItemsAndTotals, getGroupTotals, downloadLabels, getOrderItemsWithQuantity, deleteSingleOrder }

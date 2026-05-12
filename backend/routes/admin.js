@@ -216,5 +216,39 @@ const getAdmins = async(req, res) => {
     }
 }
 
+const deleteOrderItems = async(req, res) => {
+    const token = req.headers.authorization?.split(" ")[1];
+    const user = jwt.decode(token);
 
-module.exports = { getItemTotals, getUsers, getOrders, updateBalance, getAdmins, getItems }
+    const { itemIDs } = req.body;
+
+    if (!itemIDs || itemIDs.length === 0) {
+        return res.status(400).json("No items provided");
+    }
+
+    try {
+        const result = await pool.query(`
+            DELETE FROM order_item 
+            WHERE id = ANY($1::int[])
+        `, [itemIDs]);
+
+        if (result.rowCount > 0) {
+            writeLog({ 
+                userName: user.name, 
+                description: `${result.rowCount} item(s) deleted from Order Items.`, 
+                route: req.originalUrl, 
+                statusCode: 200 
+            });
+            res.status(200).json(`${result.rowCount} items deleted.`);
+        } else {
+            res.status(404).json("No items found to delete.");
+        }
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json("Server Error: " + error.message);
+        writeLog({ userName: user.name, description: error.message, route: req.originalUrl, statusCode: 500});
+    }
+}
+
+
+module.exports = { getItemTotals, getUsers, getOrders, updateBalance, getAdmins, getItems, deleteOrderItems }
