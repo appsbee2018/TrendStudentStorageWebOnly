@@ -22,6 +22,8 @@ const Items = () => {
     const [year, setYear] = useState(new Date().getFullYear());
     const navigator = useNavigate();
     const [items, setItems] = useState([]);
+    const [selectedCount, setSelectedCount] = useState(0);
+    const [gridApi, setGridApi] = useState(null);
     const [columnNames, setColumnNames] = useState([
         {
             checkboxSelection: true, 
@@ -29,6 +31,7 @@ const Items = () => {
             sortable: false,
             width: 60, 
             filter: false,
+            headerCheckboxSelectionCurrentPageOnly: true,
             pinned: 'none'
         },
         { field: "name", flex: 1, filter: true, headerName: "Item Name"},
@@ -59,7 +62,7 @@ const Items = () => {
         { field: "email", flex: 1, filter: true, headerName: "Email" },
         { field: "phone", flex: 1, filter: true, headerName: "Phone" },
     ]); 
-    const [gridApi, setGridApi] = useState(null);
+    //const [gridApi, setGridApi] = useState(null);
     const [filteredStatus, setFilteredStatus] = useState(false);
 
     useEffect(() => {
@@ -122,9 +125,11 @@ const Items = () => {
 
         const body = { itemIDs: idsToDelete }
 
+        if (selectedCount === 0) return;
+
         Swal.fire({
             title: "Are you sure?",
-            text: " You want to delete selected order items. This action can't be undone",
+            text: `You are about to delete ${selectedCount} selected order item${selectedCount > 1 ? 's' : ''}. This action cannot be undone!`,
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#1b3f9d",
@@ -164,17 +169,29 @@ const Items = () => {
             }
         });
     }
+
+   
+    const onSelectionChanged = (event) => {
+        const selectedNodes = event.api.getSelectedNodes();
+        setSelectedCount(selectedNodes.length);
+        console.log(selectedNodes.length);
+    };
     
     return (
         <div className="w-full h-full mx-10 mb-10 overflow-y-auto">
             <div className="w-full my-10 border-b-2 border-black border-opacity-20 flex justify-between items-end">
                 <h1 className=" font-hind font-semibold text-5xl text-primary">Items</h1>
                 
-                <div className="flex gap-5 items-end">
+                <div className="flex gap-5 items-center">
+                    {selectedCount > 0 && (
+                        <span className="text-md font-bold text-red-600 animate-bounce">
+                            {selectedCount} items selected
+                        </span>
+                    )}
                     <button onClick={() => getFiltered()}  className="w-fit h-fit bg-green-600 px-2 py-2 rounded-lg text-white font-hind text-nowrap">Export to Excel</button>
-                    { items.length > 0 && cookies.user?.role == 'admin' ? <button onClick={() => deleteSelectedOrderItems()} className="w-fit h-fit bg-red-600 px-2 py-2 rounded-lg text-white font-hind text-nowrap">Delete Selected Items</button> : null }
+                    { items.length > 0 && cookies.user?.role == 'admin' ? <button onClick={() => deleteSelectedOrderItems()} className="w-fit h-fit bg-red-600 px-2 py-2 rounded-lg text-white font-hind text-nowrap">Delete {selectedCount > 0 ? `(${selectedCount})` : ''} Selected Items</button> : null }
 
-                   {filteredStatus ? <button className="w-fit h-fit bg-red-600 px-2 py-2 rounded-lg text-white font-hind text-nowrap" onClick={() => {gridApi?.setFilterModel(null); setFilteredStatus(false)}}>Clear All Filters</button> : null}
+                    {filteredStatus ? <button className="w-fit h-fit bg-red-600 px-2 py-2 rounded-lg text-white font-hind text-nowrap" onClick={() => {gridApi?.setFilterModel(null); setFilteredStatus(false)}}>Clear All Filters</button> : null}
 
                     <div className="flex h-full justify-center rounded-md items-center text-xl gap-3 bg-background-200 border-2 border-background-300 drop-shadow-lg p-5">
                         <h3>Year</h3>
@@ -184,7 +201,6 @@ const Items = () => {
             </div>
 
             <div className=" w-full h-4/5 ">
-                
                 {
                     items.length > 0 ? <AgGridReact
                         ref={gridRef}
@@ -196,6 +212,7 @@ const Items = () => {
                         suppressRowClickSelection={true}
                         paginationPageSizeSelector={[10, 20, 50, 100, 500, 1000, 10000]}
                         getRowId={(params) => params.data.id}
+                        onSelectionChanged={onSelectionChanged}
                         onFilterChanged={() => setFilteredStatus(true)}
                     /> : null
                 }
